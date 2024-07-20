@@ -28,30 +28,110 @@ class Tablero{
         this.elegirVacíaAlAzar().setValor(2);
         this.elegirVacíaAlAzar().setValor(2);
     }
-    sumarPuntos(puntos){this.#puntaje += puntos};
     mover(dirección){
-        //Falta implementar!
-        console.log(`Se movió en la dirección ${dirección}`)
+        const {exito, indiceElemComparable,proxElem,proxFilCol} = this.puedeMoverse(dirección);
+        if(exito)
+        {
+            
+            for(let i = 0; i < 4; i++)
+            {
+                let actual = indiceElemComparable + proxFilCol * i;
+                const ultimoElemento = actual + proxElem * 3;
+                while(actual!=ultimoElemento)
+                {
+                    const valorActual = this.#casilleros[actual].getValor();
+                    let proximo = actual + proxElem;
+                    while(proximo != ultimoElemento + proxElem && this.#casilleros[proximo].estáVacío())
+                        proximo += proxElem;
+                    if(proximo != ultimoElemento + proxElem)
+                    {
+                        if(this.#casilleros[actual].estáVacío())
+                        {
+                            this.intercambiar(actual,proximo);
+                            continue;
+                        }
+                        else if( valorActual == this.#casilleros[proximo].getValor())
+                        {
+                            this.#casilleros[actual].setValor(valorActual*2);
+                            this.#casilleros[proximo].setValor(0);
+                        }
+                    }
+                    actual += proxElem;
+                }
+            }
+            const valorAlAzar = Math.random()<0.9 ? 2: 4;           
+            this.elegirVacíaAlAzar().setValor(valorAlAzar);
+            this.imprimir();
+        }
     }
-    reordenarTablero(dirección){
-        //Falta implementar!
-        console.log(`Se reordenó el tablero en la dirección ${dirección}`)
+    intercambiar(a,b){
+        const aux = this.#casilleros[a].getValor();
+        this.#casilleros[a].setValor(this.#casilleros[b].getValor());
+        this.#casilleros[b].setValor(aux);
     }
-    puedeMoverse(){
-        //Falta implementar!
-        return true;
+    imprimir(){
+        console.log(this.#casilleros[0].getValor(), this.#casilleros[1].getValor(),this.#casilleros[2].getValor(),this.#casilleros[3].getValor())
+            console.log(this.#casilleros[4].getValor(), this.#casilleros[5].getValor(),this.#casilleros[6].getValor(),this.#casilleros[7].getValor())
+            console.log(this.#casilleros[8].getValor(), this.#casilleros[9].getValor(),this.#casilleros[10].getValor(),this.#casilleros[11].getValor())
+            console.log(this.#casilleros[12].getValor(), this.#casilleros[13].getValor(),this.#casilleros[14].getValor(),this.#casilleros[15].getValor())
     }
-    moverEjeX(dirección){
-        //Falta implementar!
-        console.log(`Se movió en la dirección ${dirección}`)
-    }
-    moverEjeY(dirección){
-        //Falta implementar!
-        console.log(`Se movió en la dirección ${dirección}`)
+    puedeMoverse(dirección){
+        let indiceElemComparable;
+        let indiceElemComparado;
+        let proxFilCol;
+        let proxElem;
+        switch(dirección){
+            case Dirección.IZQUIERDA:{
+                indiceElemComparable = 0;
+                indiceElemComparado = 1;
+                proxFilCol = 4;
+                proxElem = 1;
+            }
+            break;
+            case Dirección.ARRIBA:{
+                indiceElemComparable = 0;
+                indiceElemComparado = 4;
+                proxFilCol = 1;
+                proxElem = 4;
+            }
+            break;
+            case Dirección.DERECHA:{
+                indiceElemComparable = 3;
+                indiceElemComparado = 2;
+                proxFilCol = 4;
+                proxElem = -1;
+            }
+            break;
+            case Dirección.ABAJO:{
+                indiceElemComparable = 12;
+                indiceElemComparado = 8;
+                proxFilCol = 1;
+                proxElem = -4;
+            }   
+            break;
+        }
+        for(let i = 0; i < 4; i++)
+        {
+            let valorComparable = this.#casilleros[indiceElemComparable+proxFilCol*i].getValor();
+            for(let j = 0; j< 3; j++)
+                {
+                    const valorComparado = this.#casilleros[indiceElemComparado+proxElem*j+proxFilCol*i].getValor();
+                    if(!valorComparable && valorComparado)
+                        return {exito: true, indiceElemComparable,indiceElemComparado,proxElem,proxFilCol};
+                    else if(!valorComparable && !valorComparado)
+                        continue;
+                    else if(valorComparable == valorComparado)
+                        return {exito: true, indiceElemComparable,indiceElemComparado,proxElem,proxFilCol};
+                    else
+                        valorComparable = valorComparado;
+                }
+        }
+
+        return {exito: false, indiceElemComparable,indiceElemComparado,proxElem,proxFilCol};
     }
     elegirVacíaAlAzar(){
         const listaDeVacios = this.#casilleros.filter((elem)=>elem.estáVacío());
-        return this.#casilleros[Math.floor(Math.random()*listaDeVacios.length)]
+        return listaDeVacios[Math.floor(Math.random()*listaDeVacios.length)]
     }
 }
 
@@ -96,4 +176,3 @@ class Pantalla{
 }
 
 const tablero = new Tablero();
-console.log(tablero.elegirVacíaAlAzar())
