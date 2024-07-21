@@ -13,14 +13,14 @@ Funcionalidad deseada:
     - Juego de 2048
         - Hay un tablero de 4x4 casillas.
         - Cada casilla esta o vacía o contiene un número que puede ser un dos o cualquier potencia de dos
-        - Al iniciar el juego, todos los casilleros están vacíos salvo dos, al azar, que contienen ambos un 2
+        - Al iniciar el juego, todos los casilleros están vacíos salvo dos elegidos al azar, que contienen,cada auno, un 2
         - Cada turno, el jugador elije una dirección (izquierda, derecha, abajo, arriba). 
         - Todas las casillas se moverán hacia la dirección elegida por el jugador.
         - En el caso de que dos casillas de igual número se muevan en la misma fila (movimiento hacia izquierda o derecha) o columna (arriba/abajo) y queden adyacentes, se "fusionaran" en una unica casilla cuyo valor será la suma de las casillas fusionadas, y se ubicará en el extremo hacia donde se movió en dicho turno.
         - Luego de cada movimiento, una casilla vacía al azar tomará el valor 2 (con un 90% de probabilidad) o 4 (con un 10% de probabilidad).
         - El juego se termina si no se pueden realizar más movimientos dado que el tablero está lleno.
         - El objetivo del juego es llegar a 2048. Una vez en este punto, se debe informar al jugador que se concluyó el juego, y darle la posibilidad de continuar jugando.
-    - Se debe poder jugar con las teclas del teclado o con 4 flechas en pantalla (borde del tablero?)
+    - Se debe poder jugar con las teclas 'w', 'a', 's' y 'd' del teclado.
 ***
 Interfaces deseadas
     - Pantalla principal con posibilidad de un nuevo juego, información sobre como jugar, información del juego (links de interes, etc)

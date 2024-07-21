@@ -7,10 +7,13 @@ const Dirección = {
 
 class Casillero{
     #valor;
-    constructor(){
+    #id;
+    constructor(indice){
         this.#valor = 0;
+        this.#id = indice;
     }
     getValor() {return this.#valor};
+    getId(){return this.#id};
     setValor(val) {this.#valor = val};
     estáVacío(){
         return this.#valor == 0;
@@ -20,19 +23,25 @@ class Casillero{
 class Tablero{
     #puntaje;
     #casilleros = [];
-    constructor(){
+    #pantalla;
+    constructor(pantalla){
+        this.#pantalla = pantalla
         this.#puntaje = 0;
         for(let i=0;i<16;i++){
-            this.#casilleros.push(new Casillero());
+            this.#casilleros.push(new Casillero(i));
+            this.#pantalla.modificarCasilla(i,0);
         }
-        this.elegirVacíaAlAzar().setValor(2);
-        this.elegirVacíaAlAzar().setValor(2);
+        for(let i = 0; i < 2; i++)
+        {
+            const aux = this.elegirVacíaAlAzar()
+            aux.setValor(2);
+            this.#pantalla.modificarCasilla(aux.getId(),2);
+        }
     }
     mover(dirección){
         const {exito, indiceElemComparable,proxElem,proxFilCol} = this.puedeMoverse(dirección);
         if(exito)
         {
-            
             for(let i = 0; i < 4; i++)
             {
                 let actual = indiceElemComparable + proxFilCol * i;
@@ -52,8 +61,15 @@ class Tablero{
                         }
                         else if( valorActual == this.#casilleros[proximo].getValor())
                         {
-                            this.#casilleros[actual].setValor(valorActual*2);
+                            const nuevoValor = valorActual*2;
+                            this.#casilleros[actual].setValor(nuevoValor);
                             this.#casilleros[proximo].setValor(0);
+                            this.#puntaje += nuevoValor;
+                            this.#pantalla.modificarPuntaje(this.#puntaje);
+                            if(nuevoValor == 2048)
+                            {
+                                this.#pantalla.desplegarModal(true,this.#puntaje);
+                            }
                         }
                     }
                     actual += proxElem;
@@ -61,7 +77,21 @@ class Tablero{
             }
             const valorAlAzar = Math.random()<0.9 ? 2: 4;           
             this.elegirVacíaAlAzar().setValor(valorAlAzar);
-            this.imprimir();
+            for(const casilla of this.#casilleros){
+                this.#pantalla.modificarCasilla(casilla.getId(),casilla.getValor());
+            }
+            //this.imprimir();
+        }
+        else
+        {
+            for(const dir in Dirección){
+                if(dir != dirección)
+                {
+                    const {exito} = this.puedeMoverse(dir);
+                    if(exito) return;
+                }
+            }
+            this.#pantalla.desplegarModal(false,this.#puntaje);
         }
     }
     intercambiar(a,b){
@@ -135,44 +165,78 @@ class Tablero{
     }
 }
 
-class Juego{
-    #puntajeMax;
-    
-    actualizarPuntajeMaximo(valor){
-        this.#puntajeMax = valor
-    }
-    nuevaPartida(){
-        //Falta Implementar!
-        console.log("Se creo una nueva partida");
-    }
-    partidaGanada(puntaje){
-        //Falta Implementar
-        console.log(`se gano la partida con puntaje ${puntaje}`)
-    }
-    partidaPerdida(puntaje){
-        //Falta implementar
-        console.log(`Se perdió la partida, con puntaje ${puntaje}`)
-    }
-}
-
 class Pantalla{
-    desplegarPantalla(){
-        //Falta Implementar
-        console.log("Se desplegó la pantalla")
+    #puntajeMaximo;
+    #puntajeActual;
+    #tablero;
+    #casillas;
 
+    constructor(){
+        this.#puntajeMaximo = document.getElementById("puntaje_maximo");
+        const p = window.localStorage.getItem("puntaje_maximo");
+        if(p) this.#puntajeMaximo.innerHTML = p;
+        else this.#puntajeMaximo.innerHTML = 0;
+        this.#puntajeActual = document.getElementById("puntaje_actual");
+        this.#casillas = Array.from(document.querySelectorAll(".casillero"));
+        this.#tablero = new Tablero(this);
+        
+        window.addEventListener("keydown",this.escucharMovimiento.bind(this))
     }
-    escucharMovimiento(){
-        //Falta Implementar
-        console.log("Se está esperando por movimientos")
+    
+    escucharMovimiento(e){
+        switch(e.key){
+            case "w":
+                this.#tablero.mover(Dirección.ARRIBA)
+                break;
+            case "a":
+                this.#tablero.mover(Dirección.IZQUIERDA);
+                break;
+            case "s":
+                this.#tablero.mover(Dirección.ABAJO);
+                break;
+            case "d":
+                this.#tablero.mover(Dirección.DERECHA);
+                break;
+        }
+    }
+    modificarCasilla(indice, valor){
+        if(valor)
+            this.#casillas[indice].innerHTML = `<p>${valor}</p>`;
+        else
+            this.#casillas[indice].innerHTML = `<p></p>`;
+    }
+    modificarPuntaje(puntaje){
+        this.#puntajeActual.innerHTML = puntaje;
+        if (puntaje > parseInt(this.#puntajeMaximo.innerHTML))
+        {
+            this.#puntajeMaximo.innerHTML = puntaje;
+            window.localStorage.setItem("puntaje_maximo",puntaje);
+        }
     }
     desplegarModal(victoria = false, puntaje)
     {
-        console.log("Se despliega modal con la victoria o el fracaso")
-    }
-    cerrarPantalla()
-    {
-        Console.log("Se cierra la pantalla y se termina el juego.")
+        const modal = document.querySelector(".modal");
+        const caja = document.querySelector(".caja_modal");
+        modal.classList.remove("oculto");
+        window.removeEventListener("keydown",this.escucharMovimiento);
+        caja.innerHTML= `
+            <h1>${victoria?"Victoria!" : "Fin del Juego"}</h1>
+            <p>${victoria?"Felicitaciones! ":""}Su puntaje fue <strong>${puntaje}</strong></p>
+            ${victoria?'<button class="button" id="continuar">Continuar Jugando</button>':""}
+            <button class="button" id="volver">Volver al menú Principal</button>
+        `
+        if(victoria){
+            const btn_continuar = document.getElementById("continuar");
+            btn_continuar.addEventListener("click",()=>{
+                window.addEventListener("keydown",this.escucharMovimiento);
+                modal.classList.add("oculto");
+            })
+        }
+        const btn_volver = document.getElementById("volver");
+        btn_volver.addEventListener("click", ()=>{
+            window.location.assign("./index.html");
+        })
     }
 }
 
-const tablero = new Tablero();
+const pantalla = new Pantalla();
