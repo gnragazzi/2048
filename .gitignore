@@ -1,2 +1,4 @@
 .vscode/
 *.odt#
+*.swo
+*.swp

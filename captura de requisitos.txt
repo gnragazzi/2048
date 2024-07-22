@@ -3,8 +3,9 @@ Se desea una webapp que sea un juego 2048.
 Reglas (https://www.elconfidencialdigital.com/articulo/noticias/como-jugar-2048/20230315194104538288.html)
 
 Análisis de Requisitos:
-
-***
+**********************************
+Primer Incremento
+**********************************
 Información que se procesará
     - Puntaje máximo alcanzado
     - Movimientos del jugador
@@ -28,3 +29,20 @@ Interfaces deseadas
 ***
 Restricciones de diseño
     - Debe ser una webapp
+**********************************
+Segundo Incremento
+**********************************
+- Debería Haber distintos colores para cada número:
+	- Vacías: Blanco/Gris
+	- 2: 
+ 	- 4:
+	- 8: 
+ 	- 16: 
+	- 32: 
+- Al querer salir desde el juego, debería haber una confirmación de salida.
+- Debería haber un cartel que explique como mover las piezas, ejecutandose la primera vez que se inicia el juego.
+- Deberían Haber animaciones:
+	>>Cuando aparece un nuevo número
+	>>Cuando una casilla se mueve. 
+- Diseño renovado de la página principal
+- Página sin cambio de documento HTML.
