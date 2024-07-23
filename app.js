@@ -27,19 +27,24 @@ class Tablero{
     constructor(pantalla){
         this.#pantalla = pantalla
         this.#puntaje = 0;
+        const a = [];
         for(let i=0;i<16;i++){
             this.#casilleros.push(new Casillero(i));
-            this.#pantalla.modificarCasilla(i,0);
+            a[i] = 0;
+            this.#pantalla.modificarCasilla(i,0,a);
         }
         for(let i = 0; i < 2; i++)
         {
             const aux = this.elegirVacíaAlAzar()
             aux.setValor(2);
-            this.#pantalla.modificarCasilla(aux.getId(),2);
+            a[aux.getId()] = -1;
+            this.#pantalla.modificarCasilla(aux.getId(),2,a);
         }
     }
     mover(dirección){
         const {exito, indiceElemComparable,proxElem,proxFilCol} = this.puedeMoverse(dirección);
+        const movimientoFinal = []
+        //console.log(movimientoFinal)
         if(exito)
         {
             for(let i = 0; i < 4; i++)
@@ -56,11 +61,13 @@ class Tablero{
                     {
                         if(this.#casilleros[actual].estáVacío())
                         {
+                            movimientoFinal[actual] = proximo;
                             this.intercambiar(actual,proximo);
                             continue;
                         }
                         else if( valorActual == this.#casilleros[proximo].getValor())
                         {
+                            movimientoFinal[actual] = proximo;
                             const nuevoValor = valorActual*2;
                             this.#casilleros[actual].setValor(nuevoValor);
                             this.#casilleros[proximo].setValor(0);
@@ -76,20 +83,18 @@ class Tablero{
                 }
             }
             const valorAlAzar = Math.random()<0.9 ? 2: 4;           
-            this.elegirVacíaAlAzar().setValor(valorAlAzar);
+            const casillaAlAzar = this.elegirVacíaAlAzar();
+            casillaAlAzar.setValor(valorAlAzar);
+            movimientoFinal[casillaAlAzar.getId()] = -1;
+            
             for(const casilla of this.#casilleros){
-                this.#pantalla.modificarCasilla(casilla.getId(),casilla.getValor());
+                this.#pantalla.modificarCasilla(casilla.getId(),casilla.getValor(),movimientoFinal);
             }
-            //this.imprimir();
-        }
-        else
-        {
+            
+            //console.log(movimientoFinal);
             for(const dir in Dirección){
-                if(dir != dirección)
-                {
-                    const {exito} = this.puedeMoverse(dir);
-                    if(exito) return;
-                }
+                const {exito} = this.puedeMoverse(dir);
+                if(exito) return;
             }
             this.#pantalla.desplegarModal(false,this.#puntaje);
         }
@@ -199,11 +204,35 @@ class Pantalla{
                 break;
         }
     }
-    modificarCasilla(indice, valor){
+    modificarCasilla(indice, valor,animacion){
+        const casilla = this.#casillas[indice].querySelector(".casilla");
+        //casilla.style.animation = "";
+        casilla.style.background = this.elegirColor(valor);
+        let cantCasillas;
+        if(casilla.classList.contains("oculto"))
+            casilla.classList.remove("oculto");
         if(valor)
-            this.#casillas[indice].innerHTML = `<p>${valor}</p>`;
-        else
-            this.#casillas[indice].innerHTML = `<p></p>`;
+        {
+            casilla.innerHTML = `${valor}`;
+            if(animacion[indice] && animacion[indice] < 0){
+                casilla.animate({transform: ["scale(0.1)","scale(1)"]},120);
+            }
+            else if(animacion[indice] && Math.abs(indice - animacion[indice])<=3)
+            {
+                cantCasillas = (animacion[indice] - indice);
+                casilla.animate({transform: [`translateX(${100*cantCasillas}%)`,"translateX(0%)"]},Math.abs(50*cantCasillas))
+            }
+            else if(animacion[indice])
+            {
+                cantCasillas = (Math.floor(animacion[indice]/4)-Math.floor(indice/4)) 
+                casilla.animate({transform: [`translateY(${100*cantCasillas}%)`,"translateX(0%)"]},Math.abs(50*cantCasillas))
+                console.log(Math.abs(50*cantCasillas))
+            }
+        }
+        else{
+            casilla.innerHTML = ``;
+            casilla.classList.add("oculto");
+        }
     }
     modificarPuntaje(puntaje){
         this.#puntajeActual.innerHTML = puntaje;
@@ -236,6 +265,51 @@ class Pantalla{
         btn_volver.addEventListener("click", ()=>{
             window.location.assign("./index.html");
         })
+    }
+    elegirColor(valor){
+        switch (valor){
+            case 0:
+                return "#d7d7d7";
+                break;
+            case 2:
+                return "#f57a7a"
+                break;
+            case 4:
+                return "#F5A17A"
+                break;
+            case 8:
+                return "#F5CE7A"
+                break;
+            case 16:
+                return "#DEF57A"
+                break;
+            case 32:
+                return "#8FF57A"
+                break;
+            case 64:
+                return "#7AF5CE"
+                break;
+            case 128:
+                    return "#7AD4F5"
+                    break;
+            case 256:
+                return "#7AA5F5"
+                break;
+            case 512:
+                return "#7A7EF5"
+                break;
+            case 1024:
+                return "#9F7AF5"
+                break;
+            case 2048:
+                return "#D67AF5"
+                break;
+            default:
+                return "#F57ABC"
+                break;
+
+        }
+
     }
 }
 

@@ -32,13 +32,7 @@ Restricciones de diseño
 **********************************
 Segundo Incremento
 **********************************
-- Debería Haber distintos colores para cada número:
-	- Vacías: Blanco/Gris
-	- 2: 
- 	- 4:
-	- 8: 
- 	- 16: 
-	- 32: 
+- Debería Haber distintos colores para cada número. Hecho.
 - Al querer salir desde el juego, debería haber una confirmación de salida.
 - Debería haber un cartel que explique como mover las piezas, ejecutandose la primera vez que se inicia el juego.
 - Deberían Haber animaciones:
