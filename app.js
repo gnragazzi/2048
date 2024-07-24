@@ -26,6 +26,7 @@ class Tablero{
     #pantalla;
     #hasta2048 = true;
     constructor(pantalla){
+        console.log("Nuevo tablero!")
         this.#pantalla = pantalla
         this.#puntaje = 0;
         const a = [];
@@ -174,6 +175,9 @@ class Tablero{
     cambiarObjetivo(){
         this.#hasta2048 = false;
     }
+    getPuntaje(){
+        return this.#puntaje;
+    }
 }
 
 class Pantalla{
@@ -183,17 +187,16 @@ class Pantalla{
     #casillas;
 
     constructor(){
+        console.log("Nueva Pantalla!")
         this.#puntajeMaximo = document.getElementById("puntaje_maximo");
         const p = window.localStorage.getItem("puntaje_maximo");
         if(p) this.#puntajeMaximo.innerHTML = p;
         else this.#puntajeMaximo.innerHTML = 0;
         this.#puntajeActual = document.getElementById("puntaje_actual");
+        this.#puntajeActual.innerHTML = 0;
         this.#casillas = Array.from(document.querySelectorAll(".casillero"));
         this.#tablero = new Tablero(this);
-        
-        window.addEventListener("keydown",this.escucharMovimiento.bind(this))
-	    const btn_salir = document.querySelector(".salir");
-	    btn_salir.addEventListener("click",this.confirmaciónSalida);
+        //window.addEventListener("keydown",this.escucharMovimiento.bind(this))
     }
 
     
@@ -275,28 +278,30 @@ class Pantalla{
             window.location.assign("./index.html");
         })
     }
-    confirmaciónSalida(){
-	const modal = document.querySelector(".modal");
+    /*confirmarSalida(principal, juego){
+        const modal = document.querySelector(".modal");
         const caja = document.querySelector(".caja_modal");
 
         modal.classList.remove("oculto");
-        window.removeEventListener("keydown",this.escucharMovimiento);
+        window.removeEventListener("keydown",this.escucharMovimiento.bind(this));
         caja.innerHTML= `
             <h1>Confirmar Salida</h1>
             <p>¿Está Seguro de querer salir?</p>
             <button class="button" id="continuar">Continuar Jugando</button>
-            <button class="button" id="volver">Volver al menú Principal</button>
+            <button class="button" id="volver_pantallaJuego">Volver al menú Principal</button>
         `
         const btn_continuar = document.getElementById("continuar");
         btn_continuar.addEventListener("click",()=>{
-            window.addEventListener("keydown",this.escucharMovimiento);
+            window.addEventListener("keydown",this.escucharMovimiento.bind(this));
             modal.classList.add("oculto");
         })
-	const btn_volver = document.getElementById("volver");
+        const btn_volver = document.getElementById("volver_pantallaJuego");
         btn_volver.addEventListener("click", ()=>{
-            window.location.assign("./index.html");
+            modal.classList.add("oculto");
+            principal.classList.remove("oculto")
+            juego.classList.add("oculto")
         })
-    }
+    }*/
     elegirColor(valor){
         switch (valor){
             case 0:
@@ -344,4 +349,111 @@ class Pantalla{
     }
 }
 
-const pantalla = new Pantalla();
+class Juego{
+    #cuerpo = document.querySelector(".cuerpo");
+    #pantallaPrincipal; 
+    #comoJugar;
+    #pantallaJuego;
+    constructor(){
+        // CREAR NODOS
+        this.#pantallaPrincipal = document.createElement("div");
+        this.#pantallaPrincipal.innerHTML = `<ul>
+            <li><button class="enlace" id="nuevo_juego">Nuevo Juego</button></li>
+            <li><button class="enlace" id="como_jugar">¿Cómo Jugar?</button></li>
+            <li><a class="enlace" href="https://es.wikipedia.org/wiki/2048" target="_blank">Acerca de 2048</a></li>
+        </ul>`
+        this.#comoJugar = document.createElement("div");
+        this.#comoJugar.classList.add("oculto");
+        this.#comoJugar.innerHTML =  `<p>El juego se juega en una cuadrícula de 4x4 y el jugador puede desplazar las fichas en cuatro direcciones: arriba, abajo, izquierda y derecha. Cuando el jugador desliza las fichas en una dirección específica, todas las fichas de la cuadrícula se mueven en esa dirección y aparece una nueva ficha en la cuadrícula. La nueva ficha será un 2 o un 4. Si dos fichas con el mismo número se tocan, se combinan en una sola ficha con la suma de sus valores.
+            El objetivo del juego es combinar las fichas numeradas y crear una ficha con el número 2048. Sin embargo, el juego termina cuando la cuadrícula está llena y no quedan más movimientos. </p>
+        <p>
+            fuente: <a class="enlace" href="https://www.elconfidencialdigital.com/articulo/noticias/como-jugar-2048/20230315194104538288.html" target="_blank">https://www.elconfidencialdigital.com/articulo/noticias/como-jugar-2048/20230315194104538288.html</a>
+        </p>
+        <p>Utilice las teclas w, s, a, d para mover las casillas hacia arriba, abajo, izquierda o derecha, respectivamente. </p>
+        <button class="enlace volver" id="volver">Volver al Menú Principal</a>`
+        this.#pantallaJuego = document.createElement("div");
+        this.#pantallaJuego.classList.add("oculto");
+        this.#pantallaJuego.innerHTML = `<div>
+            <p>puntaje máximo: <strong id="puntaje_maximo">0</strong></p>
+            <p>puntaje actual: <strong id="puntaje_actual">0</strong></p>
+        </div>
+        <div>
+            <div class="tablero">
+                <div class="casillero" ><p class="casilla">11</p></div>
+                <div class="casillero" ><p class="casilla">12</p></div>
+                <div class="casillero" ><p class="casilla">13</p></div>
+                <div class="casillero" ><p class="casilla">14</p></div>
+                <div class="casillero" ><p class="casilla">21</p></div>
+                <div class="casillero" ><p class="casilla">22</p></div>
+                <div class="casillero" ><p class="casilla">23</p></div>
+                <div class="casillero" ><p class="casilla">24</p></div>
+                <div class="casillero" ><p class="casilla">31</p></div>
+                <div class="casillero" ><p class="casilla">32</p></div>
+                <div class="casillero" ><p class="casilla">33</p></div>
+                <div class="casillero" ><p class="casilla">34</p></div>
+                <div class="casillero" ><p class="casilla">41</p></div>
+                <div class="casillero" ><p class="casilla">42</p></div>
+                <div class="casillero" ><p class="casilla">43</p></div>
+                <div class="casillero" ><p class="casilla">44</p></div>
+            </div>
+        </div>
+        <div class="modal oculto">
+            <div class="caja_modal">
+                
+            </div>
+        </div>
+        <button class="enlace" id="salir" >Volver al Menú Principal</button>`
+        //Agregar Nodos al documento.
+        this.#cuerpo.appendChild(this.#pantallaPrincipal);
+        this.#cuerpo.appendChild(this.#comoJugar);
+        this.#cuerpo.appendChild(this.#pantallaJuego);
+        let pantalla = new Pantalla();
+
+        window.addEventListener("keydown",pantalla.escucharMovimiento.bind(pantalla),true)
+
+        const btnComoJugar = document.getElementById("como_jugar");
+        btnComoJugar.addEventListener("click",()=>{
+            this.#pantallaPrincipal.classList.add("oculto");
+            this.#comoJugar.classList.remove("oculto");
+        })
+        const btnNuevoJuego = document.getElementById("nuevo_juego");
+        btnNuevoJuego.addEventListener("click",()=>{
+            this.#pantallaPrincipal.classList.add("oculto");
+            this.#pantallaJuego.classList.remove("oculto");
+        })
+        const btnVolver = document.getElementById("volver")
+        btnVolver.addEventListener("click",()=>{
+            this.#pantallaPrincipal.classList.remove("oculto");
+            this.#comoJugar.classList.add("oculto");
+        })
+        const btnSalir = document.getElementById("salir")
+        btnSalir.addEventListener("click",()=>{
+            //this.#pantalla.confirmarSalida(this.#pantallaPrincipal, this.#pantallaJuego, this.#pantalla);
+            const modal = document.querySelector(".modal");
+            const caja = document.querySelector(".caja_modal");
+            modal.classList.remove("oculto");
+            window.removeEventListener("keydown",pantalla.escucharMovimiento.bind(pantalla),true)
+            caja.innerHTML= `
+                <h1>Confirmar Salida</h1>
+                <p>¿Está Seguro de querer salir?</p>
+                <button class="button" id="continuar">Continuar Jugando</button>
+                <button class="button" id="volver_pantallaJuego">Volver al menú Principal</button>
+            `
+            const btn_continuar = document.getElementById("continuar");
+            btn_continuar.addEventListener("click",()=>{
+                //window.addEventListener("keydown",this.escucharMovimiento.bind(this));
+                modal.classList.add("oculto");
+            })
+            const btn_volver = document.getElementById("volver_pantallaJuego");
+            btn_volver.addEventListener("click", ()=>{
+                modal.classList.add("oculto");
+                this.#pantallaPrincipal.classList.remove("oculto")
+                this.#pantallaJuego.classList.add("oculto")
+                pantalla = new Pantalla();
+            })
+        })
+        
+    }
+}
+
+const juego = new Juego();
