@@ -26,7 +26,6 @@ class Tablero{
     #pantalla;
     #hasta2048 = true;
     constructor(pantalla){
-        console.log("Nuevo tablero!")
         this.#pantalla = pantalla
         this.#puntaje = 0;
         const a = [];
@@ -86,7 +85,7 @@ class Tablero{
                     actual += proxElem;
                 }
             }
-            const valorAlAzar = Math.random()<0.9 ? 2: 4;           
+            const valorAlAzar = Math.random()<0.9 ? 1024: 512;           
             const casillaAlAzar = this.elegirVacíaAlAzar();
             casillaAlAzar.setValor(valorAlAzar);
             movimientoFinal[casillaAlAzar.getId()] = -1;
@@ -185,9 +184,9 @@ class Pantalla{
     #puntajeActual;
     #tablero;
     #casillas;
-
-    constructor(){
-        console.log("Nueva Pantalla!")
+    #funcionMov;
+    #juego;
+    constructor(juego){
         this.#puntajeMaximo = document.getElementById("puntaje_maximo");
         const p = window.localStorage.getItem("puntaje_maximo");
         if(p) this.#puntajeMaximo.innerHTML = p;
@@ -196,7 +195,8 @@ class Pantalla{
         this.#puntajeActual.innerHTML = 0;
         this.#casillas = Array.from(document.querySelectorAll(".casillero"));
         this.#tablero = new Tablero(this);
-        //window.addEventListener("keydown",this.escucharMovimiento.bind(this))
+        this.#funcionMov = this.escucharMovimiento.bind(this);
+        this.#juego = juego;
     }
 
     
@@ -205,17 +205,34 @@ class Pantalla{
             case "w":
                 this.#tablero.mover(Dirección.ARRIBA)
                 break;
+            case "ArrowUp":
+                this.#tablero.mover(Dirección.ARRIBA)
+                break;
             case "a":
+                this.#tablero.mover(Dirección.IZQUIERDA);
+                break;
+            case "ArrowLeft":
                 this.#tablero.mover(Dirección.IZQUIERDA);
                 break;
             case "s":
                 this.#tablero.mover(Dirección.ABAJO);
                 break;
+            case "ArrowDown":
+                this.#tablero.mover(Dirección.ABAJO);
+                break;
             case "d":
+                this.#tablero.mover(Dirección.DERECHA);
+                break;
+            case "ArrowRight":
                 this.#tablero.mover(Dirección.DERECHA);
                 break;
         }
     }
+
+    getFuncionMovimiento(){
+        return this.#funcionMov;
+    }
+
     modificarCasilla(indice, valor,animacion){
         const casilla = this.#casillas[indice].querySelector(".casilla");
         //casilla.style.animation = "";
@@ -227,17 +244,17 @@ class Pantalla{
         {
             casilla.innerHTML = `${valor}`;
             if(animacion[indice] && animacion[indice] < 0){
-                casilla.animate({transform: ["scale(0.1)","scale(1)"]},120);
+                casilla.animate({transform: ["scale(0.05)","scale(1)"]},200);
             }
             else if(animacion[indice] && Math.abs(indice - animacion[indice])<=3)
             {
                 cantCasillas = (animacion[indice] - indice);
-                casilla.animate({transform: [`translateX(${100*cantCasillas}%)`,"translateX(0%)"]},Math.abs(50*cantCasillas))
+                casilla.animate({transform: [`translateX(${100*cantCasillas}%)`,"translateX(0%)"]},Math.abs(40*cantCasillas))
             }
             else if(animacion[indice])
             {
                 cantCasillas = (Math.floor(animacion[indice]/4)-Math.floor(indice/4)) 
-                casilla.animate({transform: [`translateY(${100*cantCasillas}%)`,"translateX(0%)"]},Math.abs(50*cantCasillas))
+                casilla.animate({transform: [`translateY(${100*cantCasillas}%)`,"translateX(0%)"]},Math.abs(40*cantCasillas))
             }
         }
         else{
@@ -258,50 +275,27 @@ class Pantalla{
         const modal = document.querySelector(".modal");
         const caja = document.querySelector(".caja_modal");
         modal.classList.remove("oculto");
-        window.removeEventListener("keydown",this.escucharMovimiento);
+        window.removeEventListener("keydown",this.#funcionMov);
         caja.innerHTML= `
             <h1>${victoria?"Victoria!" : "Fin del Juego"}</h1>
             <p>${victoria?"Felicitaciones! ":""}Su puntaje fue <strong>${puntaje}</strong></p>
-            ${victoria?'<button class="button" id="continuar">Continuar Jugando</button>':""}
-            <button class="button" id="volver">Volver al menú Principal</button>
+            ${victoria?'<button class="button" id="continuar_modal">Continuar Jugando</button>':""}
+            <button class="button" id="volver_modal">Volver al menú Principal</button>
         `
         if(victoria){
-            const btn_continuar = document.getElementById("continuar");
+            const btn_continuar = document.getElementById("continuar_modal");
             this.#tablero.cambiarObjetivo();
             btn_continuar.addEventListener("click",()=>{
-                window.addEventListener("keydown",this.escucharMovimiento.bind(this));
                 modal.classList.add("oculto");
+                window.addEventListener("keydown",this.#funcionMov);
             })
         }
-        const btn_volver = document.getElementById("volver");
+        const btn_volver = document.getElementById("volver_modal");
         btn_volver.addEventListener("click", ()=>{
-            window.location.assign("./index.html");
+            modal.classList.add("oculto");
+            this.#juego.volverAlMenuPrincipalDesdePantallaDeJuego();
         })
     }
-    /*confirmarSalida(principal, juego){
-        const modal = document.querySelector(".modal");
-        const caja = document.querySelector(".caja_modal");
-
-        modal.classList.remove("oculto");
-        window.removeEventListener("keydown",this.escucharMovimiento.bind(this));
-        caja.innerHTML= `
-            <h1>Confirmar Salida</h1>
-            <p>¿Está Seguro de querer salir?</p>
-            <button class="button" id="continuar">Continuar Jugando</button>
-            <button class="button" id="volver_pantallaJuego">Volver al menú Principal</button>
-        `
-        const btn_continuar = document.getElementById("continuar");
-        btn_continuar.addEventListener("click",()=>{
-            window.addEventListener("keydown",this.escucharMovimiento.bind(this));
-            modal.classList.add("oculto");
-        })
-        const btn_volver = document.getElementById("volver_pantallaJuego");
-        btn_volver.addEventListener("click", ()=>{
-            modal.classList.add("oculto");
-            principal.classList.remove("oculto")
-            juego.classList.add("oculto")
-        })
-    }*/
     elegirColor(valor){
         switch (valor){
             case 0:
@@ -354,6 +348,7 @@ class Juego{
     #pantallaPrincipal; 
     #comoJugar;
     #pantallaJuego;
+    #pantalla
     constructor(){
         // CREAR NODOS
         this.#pantallaPrincipal = document.createElement("div");
@@ -407,9 +402,6 @@ class Juego{
         this.#cuerpo.appendChild(this.#pantallaPrincipal);
         this.#cuerpo.appendChild(this.#comoJugar);
         this.#cuerpo.appendChild(this.#pantallaJuego);
-        let pantalla = new Pantalla();
-
-        window.addEventListener("keydown",pantalla.escucharMovimiento.bind(pantalla),true)
 
         const btnComoJugar = document.getElementById("como_jugar");
         btnComoJugar.addEventListener("click",()=>{
@@ -420,6 +412,8 @@ class Juego{
         btnNuevoJuego.addEventListener("click",()=>{
             this.#pantallaPrincipal.classList.add("oculto");
             this.#pantallaJuego.classList.remove("oculto");
+            this.#pantalla = new Pantalla(this);
+            window.addEventListener("keydown",this.#pantalla.getFuncionMovimiento())
         })
         const btnVolver = document.getElementById("volver")
         btnVolver.addEventListener("click",()=>{
@@ -432,7 +426,7 @@ class Juego{
             const modal = document.querySelector(".modal");
             const caja = document.querySelector(".caja_modal");
             modal.classList.remove("oculto");
-            window.removeEventListener("keydown",pantalla.escucharMovimiento.bind(pantalla),true)
+            window.removeEventListener("keydown",this.#pantalla.getFuncionMovimiento())
             caja.innerHTML= `
                 <h1>Confirmar Salida</h1>
                 <p>¿Está Seguro de querer salir?</p>
@@ -441,18 +435,20 @@ class Juego{
             `
             const btn_continuar = document.getElementById("continuar");
             btn_continuar.addEventListener("click",()=>{
-                //window.addEventListener("keydown",this.escucharMovimiento.bind(this));
+                window.addEventListener("keydown",this.#pantalla.getFuncionMovimiento())
                 modal.classList.add("oculto");
             })
             const btn_volver = document.getElementById("volver_pantallaJuego");
             btn_volver.addEventListener("click", ()=>{
                 modal.classList.add("oculto");
-                this.#pantallaPrincipal.classList.remove("oculto")
-                this.#pantallaJuego.classList.add("oculto")
-                pantalla = new Pantalla();
+                this.volverAlMenuPrincipalDesdePantallaDeJuego();
             })
         })
         
+    }
+    volverAlMenuPrincipalDesdePantallaDeJuego(){
+        this.#pantallaPrincipal.classList.remove("oculto")
+        this.#pantallaJuego.classList.add("oculto")
     }
 }
 
