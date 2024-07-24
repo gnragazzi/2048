@@ -32,11 +32,11 @@ Restricciones de diseño
 **********************************
 Segundo Incremento
 **********************************
-- Debería Haber distintos colores para cada número. Hecho.
-- Al querer salir desde el juego, debería haber una confirmación de salida.
+x Debería Haber distintos colores para cada número.
+x Al querer salir desde el juego, debería haber una confirmación de salida.
 - Debería haber un cartel que explique como mover las piezas, ejecutandose la primera vez que se inicia el juego.
-- Deberían Haber animaciones:
-	>>Cuando aparece un nuevo número
-	>>Cuando una casilla se mueve. 
+x Deberían Haber animaciones:
+	x. Cuando aparece un nuevo número
+	x. Cuando una casilla se mueve. 
 - Diseño renovado de la página principal
 - Página sin cambio de documento HTML.

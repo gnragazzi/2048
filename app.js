@@ -24,6 +24,7 @@ class Tablero{
     #puntaje;
     #casilleros = [];
     #pantalla;
+    #hasta2048 = true;
     constructor(pantalla){
         this.#pantalla = pantalla
         this.#puntaje = 0;
@@ -44,6 +45,7 @@ class Tablero{
     mover(dirección){
         const {exito, indiceElemComparable,proxElem,proxFilCol} = this.puedeMoverse(dirección);
         const movimientoFinal = []
+        
         //console.log(movimientoFinal)
         if(exito)
         {
@@ -73,7 +75,8 @@ class Tablero{
                             this.#casilleros[proximo].setValor(0);
                             this.#puntaje += nuevoValor;
                             this.#pantalla.modificarPuntaje(this.#puntaje);
-                            if(nuevoValor == 2048)
+                            
+                            if(nuevoValor == 2048 && this.#hasta2048)
                             {
                                 this.#pantalla.desplegarModal(true,this.#puntaje);
                             }
@@ -168,6 +171,9 @@ class Tablero{
         const listaDeVacios = this.#casilleros.filter((elem)=>elem.estáVacío());
         return listaDeVacios[Math.floor(Math.random()*listaDeVacios.length)]
     }
+    cambiarObjetivo(){
+        this.#hasta2048 = false;
+    }
 }
 
 class Pantalla{
@@ -186,7 +192,10 @@ class Pantalla{
         this.#tablero = new Tablero(this);
         
         window.addEventListener("keydown",this.escucharMovimiento.bind(this))
+	    const btn_salir = document.querySelector(".salir");
+	    btn_salir.addEventListener("click",this.confirmaciónSalida);
     }
+
     
     escucharMovimiento(e){
         switch(e.key){
@@ -226,7 +235,6 @@ class Pantalla{
             {
                 cantCasillas = (Math.floor(animacion[indice]/4)-Math.floor(indice/4)) 
                 casilla.animate({transform: [`translateY(${100*cantCasillas}%)`,"translateX(0%)"]},Math.abs(50*cantCasillas))
-                console.log(Math.abs(50*cantCasillas))
             }
         }
         else{
@@ -256,12 +264,35 @@ class Pantalla{
         `
         if(victoria){
             const btn_continuar = document.getElementById("continuar");
+            this.#tablero.cambiarObjetivo();
             btn_continuar.addEventListener("click",()=>{
-                window.addEventListener("keydown",this.escucharMovimiento);
+                window.addEventListener("keydown",this.escucharMovimiento.bind(this));
                 modal.classList.add("oculto");
             })
         }
         const btn_volver = document.getElementById("volver");
+        btn_volver.addEventListener("click", ()=>{
+            window.location.assign("./index.html");
+        })
+    }
+    confirmaciónSalida(){
+	const modal = document.querySelector(".modal");
+        const caja = document.querySelector(".caja_modal");
+
+        modal.classList.remove("oculto");
+        window.removeEventListener("keydown",this.escucharMovimiento);
+        caja.innerHTML= `
+            <h1>Confirmar Salida</h1>
+            <p>¿Está Seguro de querer salir?</p>
+            <button class="button" id="continuar">Continuar Jugando</button>
+            <button class="button" id="volver">Volver al menú Principal</button>
+        `
+        const btn_continuar = document.getElementById("continuar");
+        btn_continuar.addEventListener("click",()=>{
+            window.addEventListener("keydown",this.escucharMovimiento);
+            modal.classList.add("oculto");
+        })
+	const btn_volver = document.getElementById("volver");
         btn_volver.addEventListener("click", ()=>{
             window.location.assign("./index.html");
         })
