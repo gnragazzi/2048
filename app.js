@@ -85,7 +85,7 @@ class Tablero{
                     actual += proxElem;
                 }
             }
-            const valorAlAzar = Math.random()<0.9 ? 1024: 512;           
+            const valorAlAzar = Math.random()<0.9 ? 2: 4;           
             const casillaAlAzar = this.elegirVacíaAlAzar();
             casillaAlAzar.setValor(valorAlAzar);
             movimientoFinal[casillaAlAzar.getId()] = -1;
@@ -277,10 +277,10 @@ class Pantalla{
         modal.classList.remove("oculto");
         window.removeEventListener("keydown",this.#funcionMov);
         caja.innerHTML= `
-            <h1>${victoria?"Victoria!" : "Fin del Juego"}</h1>
+            <h1 class='titulo_modal'>${victoria?"Victoria!" : "Fin del Juego"}</h1>
             <p>${victoria?"Felicitaciones! ":""}Su puntaje fue <strong>${puntaje}</strong></p>
-            ${victoria?'<button class="button" id="continuar_modal">Continuar Jugando</button>':""}
-            <button class="button" id="volver_modal">Volver al menú Principal</button>
+            ${victoria?'<button class="enlace volver_menu" id="continuar_modal">Continuar Jugando</button>':""}
+            <button class="enlace volver_menu" id="volver_modal">Volver al menú Principal</button>
         `
         if(victoria){
             const btn_continuar = document.getElementById("continuar_modal");
@@ -359,18 +359,19 @@ class Juego{
         </ul>`
         this.#comoJugar = document.createElement("div");
         this.#comoJugar.classList.add("oculto");
-        this.#comoJugar.innerHTML =  `<p>El juego se juega en una cuadrícula de 4x4 y el jugador puede desplazar las fichas en cuatro direcciones: arriba, abajo, izquierda y derecha. Cuando el jugador desliza las fichas en una dirección específica, todas las fichas de la cuadrícula se mueven en esa dirección y aparece una nueva ficha en la cuadrícula. La nueva ficha será un 2 o un 4. Si dos fichas con el mismo número se tocan, se combinan en una sola ficha con la suma de sus valores.
+        this.#comoJugar.innerHTML =  `<p class='explicacion'>Utilice las teclas <strong>w</strong>, <strong>s</strong>, <strong>a</strong>, <strong>d</strong> para mover las casillas hacia arriba, abajo, izquierda o derecha, respectivamente. También puede utilizar las flechas del teclado.</p>
+        <p class='explicacion'>El juego se juega en una cuadrícula de 4x4 y el jugador puede desplazar las fichas en cuatro direcciones: arriba, abajo, izquierda y derecha. Cuando el jugador desliza las fichas en una dirección específica, todas las fichas de la cuadrícula se mueven en esa dirección y aparece una nueva ficha en la cuadrícula. La nueva ficha será un 2 o un 4. Si dos fichas con el mismo número se tocan, se combinan en una sola ficha con la suma de sus valores.
             El objetivo del juego es combinar las fichas numeradas y crear una ficha con el número 2048. Sin embargo, el juego termina cuando la cuadrícula está llena y no quedan más movimientos. </p>
-        <p>
-            fuente: <a class="enlace" href="https://www.elconfidencialdigital.com/articulo/noticias/como-jugar-2048/20230315194104538288.html" target="_blank">https://www.elconfidencialdigital.com/articulo/noticias/como-jugar-2048/20230315194104538288.html</a>
+        <p class="fuente" >
+            fuente: <a href="https://www.elconfidencialdigital.com/articulo/noticias/como-jugar-2048/20230315194104538288.html" target="_blank">https://www.elconfidencialdigital.com/articulo/noticias/como-jugar-2048/20230315194104538288.html</a>
         </p>
-        <p>Utilice las teclas w, s, a, d para mover las casillas hacia arriba, abajo, izquierda o derecha, respectivamente. </p>
-        <button class="enlace volver" id="volver">Volver al Menú Principal</a>`
+        
+        <button class="enlace volver_menu" id="volver">Volver al Menú Principal</a>`
         this.#pantallaJuego = document.createElement("div");
         this.#pantallaJuego.classList.add("oculto");
-        this.#pantallaJuego.innerHTML = `<div>
-            <p>puntaje máximo: <strong id="puntaje_maximo">0</strong></p>
-            <p>puntaje actual: <strong id="puntaje_actual">0</strong></p>
+        this.#pantallaJuego.innerHTML = `<div class='contenedor_puntaje'>
+            <p class='puntaje'>Máximo: <strong id="puntaje_maximo">0</strong></p>
+            <p class='puntaje'>Actual: <strong id="puntaje_actual">0</strong></p>
         </div>
         <div>
             <div class="tablero">
@@ -397,7 +398,7 @@ class Juego{
                 
             </div>
         </div>
-        <button class="enlace" id="salir" >Volver al Menú Principal</button>`
+        <button class="enlace volver_menu" id="salir" >Volver al Menú Principal</button>`
         //Agregar Nodos al documento.
         this.#cuerpo.appendChild(this.#pantallaPrincipal);
         this.#cuerpo.appendChild(this.#comoJugar);
@@ -410,6 +411,8 @@ class Juego{
         })
         const btnNuevoJuego = document.getElementById("nuevo_juego");
         btnNuevoJuego.addEventListener("click",()=>{
+            const titulo = document.querySelector(".titulo");
+            titulo.classList.add("titulo_juego");
             this.#pantallaPrincipal.classList.add("oculto");
             this.#pantallaJuego.classList.remove("oculto");
             this.#pantalla = new Pantalla(this);
@@ -428,10 +431,9 @@ class Juego{
             modal.classList.remove("oculto");
             window.removeEventListener("keydown",this.#pantalla.getFuncionMovimiento())
             caja.innerHTML= `
-                <h1>Confirmar Salida</h1>
-                <p>¿Está Seguro de querer salir?</p>
-                <button class="button" id="continuar">Continuar Jugando</button>
-                <button class="button" id="volver_pantallaJuego">Volver al menú Principal</button>
+                <p>¿Está seguro de querer salir?</p>
+                <button class="enlace volver_menu" id="continuar">Continuar Jugando</button>
+                <button class="enlace volver_menu" id="volver_pantallaJuego">Volver al menú Principal</button>
             `
             const btn_continuar = document.getElementById("continuar");
             btn_continuar.addEventListener("click",()=>{
@@ -447,6 +449,7 @@ class Juego{
         
     }
     volverAlMenuPrincipalDesdePantallaDeJuego(){
+        document.querySelector(".titulo").classList.remove("titulo_juego");
         this.#pantallaPrincipal.classList.remove("oculto")
         this.#pantallaJuego.classList.add("oculto")
     }
